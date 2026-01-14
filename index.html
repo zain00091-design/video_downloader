@@ -40,19 +40,18 @@ async function downloadVideo() {
     }
 
     try {
-        // ضع هنا رابط السيرفر الخاص بك
-        const res = await fetch("http://YOUR_SERVER_IP:3000/download", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ url })
-        });
+        // استخدم API مجاني لتنزيل الفيديوهات (استبدل بالرابط المناسب إذا لزم)
+        const apiUrl = `https://api.yt-download.org/api/button/videos?url=${encodeURIComponent(url)}`;
+        const res = await fetch(apiUrl);
+        if (!res.ok) throw new Error("فشل الحصول على رابط الفيديو");
 
-        if (!res.ok) throw new Error("فشل تحميل الفيديو");
+        const data = await res.json();
+        if (!data.url) throw new Error("الرابط غير صالح أو لا يمكن تنزيله");
 
-        const blob = await res.blob();
+        // إنشاء رابط التحميل وتنزيل الفيديو
         const link = document.createElement("a");
-        link.href = window.URL.createObjectURL(blob);
-        link.download = "video.mp4"; // اسم الملف عند التحميل
+        link.href = data.url;
+        link.download = "video.mp4";
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
