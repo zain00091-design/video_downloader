@@ -1,45 +1,67 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>برنامج تنزيل الفيديو</title>
-    <style>
-        body { font-family: Arial, sans-serif; text-align: center; background-color: #f0f0f0; margin: 0; padding: 0; }
-        header { background-color: #ff6600; color: white; padding: 20px; }
-        main { margin: 20px; }
-        input, button { padding: 10px; margin: 5px; font-size: 16px; }
-        footer { background-color: #333; color: white; padding: 10px; position: fixed; bottom: 0; width: 100%; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>برنامج تنزيل الفيديو</title>
+<style>
+body { font-family: Arial; text-align: center; background-color: #f0f0f0; margin: 0; padding: 0; }
+header { background-color: #ff6600; color: white; padding: 20px; }
+main { margin: 20px; }
+input, button { padding: 10px; margin: 5px; font-size: 16px; width: 80%; max-width: 400px; }
+button { background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; }
+footer { background-color: #333; color: white; padding: 10px; position: fixed; bottom: 0; width: 100%; }
+</style>
 </head>
 <body>
-    <header>
-        <h1>برنامج تنزيل الفيديو</h1>
-        <p>انسخ رابط الفيديو والصقه هنا للتحميل</p>
-    </header>
+<header>
+<h1>برنامج تنزيل الفيديو</h1>
+<p>انسخ رابط الفيديو والصقه هنا للتحميل</p>
+</header>
 
-    <main>
-        <input type="text" placeholder="أدخل رابط الفيديو هنا" id="videoUrl">
-        <button onclick="downloadVideo()">تحميل</button>
-    </main>
+<main>
+<input type="text" placeholder="أدخل رابط الفيديو هنا" id="videoUrl">
+<button onclick="downloadVideo()">تحميل</button>
+</main>
 
-    <footer>
-        &copy; 2026 Zain Video Downloader
-    </footer>
+<footer>
+&copy; 2026 Zain Video Downloader
+</footer>
 
-    <!-- كود إعلان Adsterra -->
-    <script src="https://pl28473015.effectivegatecpm.com/2b/af/4c/2baf4c184524e2ec7c2d96e2d143dd64.js"></script>
+<!-- كود إعلان Adsterra -->
+<script src="https://pl28473015.effectivegatecpm.com/2b/af/4c/2baf4c184524e2ec7c2d96e2d143dd64.js"></script>
 
-    <script>
-        function downloadVideo() {
-            var url = document.getElementById("videoUrl").value;
-            if (url) {
-                alert("تم بدء تحميل الفيديو من الرابط:\n" + url);
-                // هنا ممكن تضيف كود التحميل الفعلي
-            } else {
-                alert("الرجاء إدخال رابط الفيديو!");
-            }
-        }
-    </script>
+<script>
+async function downloadVideo() {
+    const url = document.getElementById("videoUrl").value.trim();
+    if (!url) {
+        alert("⚠️ الرجاء إدخال رابط الفيديو!");
+        return;
+    }
+
+    try {
+        // ضع هنا رابط السيرفر الخاص بك
+        const res = await fetch("http://YOUR_SERVER_IP:3000/download", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ url })
+        });
+
+        if (!res.ok) throw new Error("فشل تحميل الفيديو");
+
+        const blob = await res.blob();
+        const link = document.createElement("a");
+        link.href = window.URL.createObjectURL(blob);
+        link.download = "video.mp4"; // اسم الملف عند التحميل
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+    } catch (err) {
+        alert("❌ " + err.message);
+    }
+}
+</script>
+
 </body>
 </html>
