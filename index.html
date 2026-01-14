@@ -3,24 +3,30 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>برنامج تنزيل الفيديو</title>
+<title>برنامج تنزيل فيديوهات التواصل الاجتماعي</title>
 <style>
 body { font-family: Arial; text-align: center; background-color: #f0f0f0; margin: 0; padding: 0; }
 header { background-color: #ff6600; color: white; padding: 20px; }
 main { margin: 20px; }
-input, button { padding: 10px; margin: 5px; font-size: 16px; width: 80%; max-width: 400px; }
+input, select, button { padding: 10px; margin: 5px; font-size: 16px; width: 80%; max-width: 400px; }
 button { background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; }
 footer { background-color: #333; color: white; padding: 10px; position: fixed; bottom: 0; width: 100%; }
 </style>
 </head>
 <body>
+
 <header>
-<h1>برنامج تنزيل الفيديو</h1>
-<p>انسخ رابط الفيديو والصقه هنا للتحميل</p>
+<h1>برنامج تنزيل فيديوهات التواصل الاجتماعي</h1>
+<p>انسخ رابط الفيديو والصقه هنا واختر المنصة</p>
 </header>
 
 <main>
 <input type="text" placeholder="أدخل رابط الفيديو هنا" id="videoUrl">
+<select id="platform">
+  <option value="tiktok">TikTok</option>
+  <option value="facebook">Facebook</option>
+  <option value="instagram">Instagram</option>
+</select>
 <button onclick="downloadVideo()">تحميل</button>
 </main>
 
@@ -34,31 +40,48 @@ footer { background-color: #333; color: white; padding: 10px; position: fixed; b
 <script>
 async function downloadVideo() {
     const url = document.getElementById("videoUrl").value.trim();
-    if (!url) {
-        alert("⚠️ الرجاء إدخال رابط الفيديو!");
-        return;
-    }
+    const platform = document.getElementById("platform").value;
+
+    if (!url) return alert("⚠️ الرجاء إدخال رابط الفيديو!");
 
     try {
-        // استخدم API مجاني لتنزيل الفيديوهات (استبدل بالرابط المناسب إذا لزم)
-        const apiUrl = `https://api.yt-download.org/api/button/videos?url=${encodeURIComponent(url)}`;
-        const res = await fetch(apiUrl);
-        if (!res.ok) throw new Error("فشل الحصول على رابط الفيديو");
+        let apiUrl;
 
-        const data = await res.json();
-        if (!data.url) throw new Error("الرابط غير صالح أو لا يمكن تنزيله");
+        if(platform === "tiktok") {
+            apiUrl = `https://api.tikmate.app/api/lookup?url=${encodeURIComponent(url)}`;
+            const res = await fetch(apiUrl);
+            if(!res.ok) throw new Error("فشل الحصول على رابط الفيديو");
+            const data = await res.json();
+            if(!data.download || !data.download[0].url) throw new Error("الرابط غير صالح");
+            downloadFile(data.download[0].url, "tiktok_video.mp4");
 
-        // إنشاء رابط التحميل وتنزيل الفيديو
-        const link = document.createElement("a");
-        link.href = data.url;
-        link.download = "video.mp4";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        } else if(platform === "facebook") {
+            apiUrl = `https://fbdownloader.net/api?url=${encodeURIComponent(url)}`; // مثال API
+            const res = await fetch(apiUrl);
+            if(!res.ok) throw new Error("فشل الحصول على رابط الفيديو");
+            const data = await res.json();
+            downloadFile(data.downloadUrl || url, "facebook_video.mp4");
 
-    } catch (err) {
+        } else if(platform === "instagram") {
+            apiUrl = `https://api.instadownloader.org/api?url=${encodeURIComponent(url)}`; // مثال API
+            const res = await fetch(apiUrl);
+            if(!res.ok) throw new Error("فشل الحصول على رابط الفيديو");
+            const data = await res.json();
+            downloadFile(data.downloadUrl || url, "instagram_video.mp4");
+        }
+
+    } catch(err) {
         alert("❌ " + err.message);
     }
+}
+
+function downloadFile(fileUrl, fileName) {
+    const link = document.createElement("a");
+    link.href = fileUrl;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
 </script>
 
